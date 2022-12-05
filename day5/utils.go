@@ -65,3 +65,66 @@ func sliceMapErr[I, O any](slice []I, f func(I) (O, error)) (res []O, err error)
 
 	return res, nil
 }
+
+func sliceFilter[T any](slice []T, predicate func(T) bool) (res []T) {
+	res, _ = sliceFilterWithIndexes(slice, predicate)
+
+	return
+}
+func sliceFilterWithIndexes[T any](slice []T, predicate func(T) bool) (res []T, indexes []int) {
+	if slice == nil {
+		return nil, nil
+	}
+	if len(slice) == 0 {
+		return []T{}, []int{}
+	}
+	res = make([]T, 0, len(slice))
+	indexes = make([]int, 0, len(slice))
+
+	for i, v := range slice {
+		if predicate(v) {
+			res = append(res, v)
+			indexes = append(indexes, i)
+		}
+	}
+
+	return res, indexes
+}
+
+func reverse[T any](in []T) []T {
+	if in == nil {
+		return nil
+	}
+	out := make([]T, len(in))
+
+	last := len(in) - 1
+	for i := 0; i < len(in); i++ {
+		out[last-i] = in[i]
+	}
+
+	return out
+}
+
+// In place reverseInPlace of a slice
+func reverseInPlace[T any](in []T) []T {
+	i, l := 0, len(in)-1
+	if l > 0 {
+		for i <= l {
+			tmp := in[i]
+			in[i] = in[l]
+			in[l] = tmp
+
+			i++
+			l--
+		}
+	}
+
+	return in
+}
+
+func isNotDigit(r rune) bool {
+	return !isDigit(r)
+}
+func isDigit(r rune) bool {
+	return r >= '0' && r <= '9'
+}

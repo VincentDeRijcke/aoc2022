@@ -86,3 +86,54 @@ func Test_atois(t *testing.T) {
 		})
 	}
 }
+
+func Test_reverse(t *testing.T) {
+	type args[T any] struct {
+		in []T
+	}
+	type testCase[T any] struct {
+		name string
+		args args[T]
+		want []T
+	}
+	tests := []testCase[int]{
+		{name: "Nil", args: args[int]{in: nil}, want: nil},
+		{name: "Empty", args: args[int]{in: []int{}}, want: []int{}},
+		{name: "NotEmpty", args: args[int]{in: []int{1}}, want: []int{1}},
+		{name: "NotEmpty", args: args[int]{in: []int{1, 2}}, want: []int{2, 1}},
+		{name: "NotEmpty", args: args[int]{in: []int{1, 2, 3}}, want: []int{3, 2, 1}},
+		{name: "NotEmpty", args: args[int]{in: []int{1, 2, 3, 4}}, want: []int{4, 3, 2, 1}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := reverse(tt.args.in); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("reverse() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+func Test_reverseInPlace(t *testing.T) {
+	type args[T any] struct {
+		in []T
+	}
+	type testCase[T any] struct {
+		name string
+		args args[T]
+		want []T
+	}
+	tests := []testCase[int]{
+		{name: "Nil", args: args[int]{in: nil}, want: nil},
+		{name: "Empty", args: args[int]{in: []int{}}, want: []int{}},
+		{name: "NotEmpty", args: args[int]{in: []int{1}}, want: []int{1}},
+		{name: "NotEmpty", args: args[int]{in: []int{1, 2}}, want: []int{2, 1}},
+		{name: "NotEmpty", args: args[int]{in: []int{1, 2, 3}}, want: []int{3, 2, 1}},
+		{name: "NotEmpty", args: args[int]{in: []int{1, 2, 3, 4}}, want: []int{4, 3, 2, 1}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := reverseInPlace(tt.args.in); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("reverseInPlace() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

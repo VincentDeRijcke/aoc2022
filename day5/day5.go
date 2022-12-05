@@ -6,39 +6,40 @@ import (
 	"strings"
 )
 
-var lines []string
-var stacks1 = [][]rune{
-	/*1*/ []rune("RNPG"),
-	/*2*/ []rune("TJBLCSVH"),
-	/*3*/ []rune("TDBMNL"),
-	/*4*/ []rune("RVPSB"),
-	/*5*/ []rune("GCQSWMVH"),
-	/*6*/ []rune("WQSCDBJ"),
-	/*7*/ []rune("FQL"),
-	/*8*/ []rune("WMHTDLFV"),
-	/*9*/ []rune("LPBVMJF"),
-}
+var unprocessedStackLines [][]rune
+var stacks1 [][]rune
+var stacks2 [][]rune
 
-var stacks2 = [][]rune{
-	/*1*/ []rune("RNPG"),
-	/*2*/ []rune("TJBLCSVH"),
-	/*3*/ []rune("TDBMNL"),
-	/*4*/ []rune("RVPSB"),
-	/*5*/ []rune("GCQSWMVH"),
-	/*6*/ []rune("WQSCDBJ"),
-	/*7*/ []rune("FQL"),
-	/*8*/ []rune("WMHTDLFV"),
-	/*9*/ []rune("LPBVMJF"),
-}
+// From
+//
+//	"    [D]    "
+//	"[N] [C]    "
+//	"[Z] [M] [P]"
+//	" 1   2   3 "
+//
+// To
+//
+//	"ZN"
+//	"MCD"
+//	"P"
+func buildStacks(lines [][]rune) [][]rune {
+	lines = reverse(lines)
+	_, indexes := sliceFilterWithIndexes(lines[0], isDigit)
 
-func build(line string) {
+	stack := make([][]rune, len(indexes))
+	for _, line := range lines[1:] {
+		for i, index := range indexes {
+			if line[index] != ' ' {
+				stack[i] = append(stack[i], line[index])
+			}
+		}
+	}
 
+	return stack
 }
 
 func move(line string) {
-	fields, err := atois(strings.FieldsFunc(line, func(r rune) bool {
-		return !(r >= '0' && r <= '9')
-	}))
+	fields, err := atois(strings.FieldsFunc(line, isNotDigit))
 	check(err)
 	count, from, to := fields[0], fields[1]-1, fields[2]-1
 
@@ -67,14 +68,18 @@ func resolve(input string) (resultPart1 string, resultPart2 string) {
 
 	init := true
 	for _, line := range lines {
-		if line != "" {
-			if init {
-				build(line)
+		if init {
+			if line != "" {
+				unprocessedStackLines = append(unprocessedStackLines, []rune(line))
 			} else {
-				move(line)
+				stacks1 = buildStacks(unprocessedStackLines)
+				stacks2 = buildStacks(unprocessedStackLines)
+				init = false
 			}
 		} else {
-			init = false
+			if line != "" {
+				move(line)
+			}
 		}
 	}
 
