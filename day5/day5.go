@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aoc_go22/utils"
 	"fmt"
 	"os"
 	"strings"
@@ -23,8 +24,8 @@ var stacks2 [][]rune
 //	"MCD"
 //	"P"
 func buildStacks(lines [][]rune) [][]rune {
-	lines = reverse(lines)
-	_, indexes := sliceFilterWithIndexes(lines[0], isDigit)
+	lines = utils.Reverse(lines)
+	_, indexes := utils.SliceFilterWithIndexes(lines[0], utils.IsDigit)
 
 	stack := make([][]rune, len(indexes))
 	for _, line := range lines[1:] {
@@ -39,8 +40,8 @@ func buildStacks(lines [][]rune) [][]rune {
 }
 
 func move(line string) {
-	fields, err := atois(strings.FieldsFunc(line, isNotDigit))
-	check(err)
+	fields, err := utils.Atois(strings.FieldsFunc(line, utils.IsNotDigit))
+	utils.MaybePanic(err)
 	count, from, to := fields[0], fields[1]-1, fields[2]-1
 
 	for i := 0; i < count; i++ {
@@ -88,7 +89,7 @@ func resolve(input string) (resultPart1 string, resultPart2 string) {
 func main() {
 	fmt.Println("Reading input")
 	var content, err = os.ReadFile("./day5/input.txt")
-	check(err)
+	utils.MaybePanic(err)
 	part1, part2 := resolve(string(content))
 
 	fmt.Println("Result Part 1:", part1)

@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"reflect"
@@ -24,8 +24,8 @@ func Test_splitSlice(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := splitSlice(tt.args.slice, tt.args.sep); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("splitSlice() = %v, want %v", got, tt.want)
+			if got := SplitSlice(tt.args.slice, tt.args.sep); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SplitSlice() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -51,42 +51,12 @@ func Test_splits(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := splits(tt.args.s, tt.args.seps...); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("splits() = %v, want %v", got, tt.want)
+			if got := Splits(tt.args.s, tt.args.seps...); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Splits() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
-
-func Test_atois(t *testing.T) {
-	type args struct {
-		slice []string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    []int
-		wantErr bool
-	}{
-		{name: "Nil", args: args{slice: nil}, want: nil, wantErr: false},
-		{name: "Empty", args: args{slice: []string{}}, want: []int{}, wantErr: false},
-		{name: "NoErr", args: args{slice: []string{"1", "-1", "100", "-100"}}, want: []int{1, -1, 100, -100}, wantErr: false},
-		{name: "Err", args: args{slice: []string{"1", "-1", "bou", "-100"}}, want: []int{1, -1, 0, 0}, wantErr: true},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := atois(tt.args.slice)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("atois() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("atois() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func Test_reverse(t *testing.T) {
 	type args[T any] struct {
 		in []T
@@ -106,8 +76,14 @@ func Test_reverse(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := reverse(tt.args.in); !reflect.DeepEqual(got, tt.want) {
+			got := Reverse(tt.args.in)
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("reverse() = %v, want %v", got, tt.want)
+			}
+			if len(got) > 1 {
+				if got[0] == tt.args.in[0] {
+					t.Errorf("ReverseInPlace() = Inplace reversed")
+				}
 			}
 		})
 	}
@@ -131,8 +107,65 @@ func Test_reverseInPlace(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := reverseInPlace(tt.args.in); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("reverseInPlace() = %v, want %v", got, tt.want)
+			got := ReverseInPlace(tt.args.in)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ReverseInPlace() = %v, want %v", got, tt.want)
+			}
+			if len(got) > 0 {
+				if got[0] != tt.args.in[0] {
+					t.Errorf("ReverseInPlace() = Not inplace reversed")
+				}
+			}
+		})
+	}
+}
+
+func TestTranspose(t *testing.T) {
+	type args[T any] struct {
+		in [][]T
+	}
+	type testCase[T any] struct {
+		name    string
+		args    args[T]
+		want    [][]T
+		wantErr bool
+	}
+	tests := []testCase[rune]{
+		{name: "Nil", args: args[rune]{in: nil}, want: nil},
+		{name: "1Line", args: args[rune]{in: StringToRunes("ABC")}, want: StringToRunes("A\nB\nC")},
+		{name: "InconsistendLineLength", args: args[rune]{in: StringToRunes("123\n12")}, want: nil, wantErr: true},
+		{name: "2Line", args: args[rune]{in: StringToRunes("" +
+			"ABC \n" +
+			"DEFX")}, want: StringToRunes("" +
+			"DA\n" +
+			"EB\n" +
+			"FC\n" +
+			"X ")},
+		{name: "Day5 Example", args: args[rune]{in: StringToRunes("" +
+			"    [D]    \n" +
+			"[N] [C]    \n" +
+			"[Z] [M] [P]\n" +
+			" 1   2   3 ")}, want: StringToRunes("" +
+			" [[ \n" +
+			"1ZN \n" +
+			" ]] \n" +
+			"    \n" +
+			" [[[\n" +
+			"2MCD\n" +
+			" ]]]\n" +
+			"    \n" +
+			" [  \n" +
+			"3P  \n" +
+			" ]  ")},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotOut, err := Transpose(tt.args.in)
+			if !reflect.DeepEqual(gotOut, tt.want) {
+				t.Errorf("Transpose() = %v, want %v", RunesToString(gotOut), RunesToString(tt.want))
+			}
+			if tt.wantErr != (err != nil) {
+				t.Errorf("Transpose() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

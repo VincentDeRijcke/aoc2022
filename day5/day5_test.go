@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aoc_go22/utils"
 	"reflect"
 	"testing"
 )
@@ -49,7 +50,8 @@ func Test_buildStacks(t *testing.T) {
 		args args
 		want [][]rune
 	}{
-		{name: "Example", args: args{lines: "    [D]    \n" +
+		{name: "Example", args: args{lines: "" +
+			"    [D]    \n" +
 			"[N] [C]    \n" +
 			"[Z] [M] [P]\n" +
 			" 1   2   3 "},
@@ -58,7 +60,8 @@ func Test_buildStacks(t *testing.T) {
 				/*2*/ []rune("MCD"),
 				/*3*/ []rune("P"),
 			}},
-		{name: "Real", args: args{lines: "    [H]         [H]         [V]    \n" +
+		{name: "Real", args: args{lines: "" +
+			"    [H]         [H]         [V]    \n" +
 			"    [V]         [V] [J]     [F] [F]\n" +
 			"    [S] [L]     [M] [B]     [L] [J]\n" +
 			"    [C] [N] [B] [W] [D]     [D] [M]\n" +
@@ -81,7 +84,7 @@ func Test_buildStacks(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := buildStacks(sliceMap(splits(tt.args.lines, "\n"), func(s string) []rune { return []rune(s) })); !reflect.DeepEqual(got, tt.want) {
+			if got := buildStacks(utils.StringToRunes(tt.args.lines)); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("buildStacks() = %v, want %v", got, tt.want)
 			}
 		})
