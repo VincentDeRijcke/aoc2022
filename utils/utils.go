@@ -25,6 +25,10 @@ func RunesToString(runes [][]rune) string {
 	return strings.Join(Strings(runes), "\n")
 }
 
+func RunesTrimSpace(runes []rune) []rune {
+	return []rune(strings.TrimSpace(string(runes)))
+}
+
 func StringToRunes(s string) [][]rune {
 	return Runes(strings.Split(s, "\n"))
 }
