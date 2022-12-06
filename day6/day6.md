@@ -51,3 +51,4 @@ Here are the first positions of start-of-message markers for all of the above ex
 
 *How many characters need to be processed before the first start-of-message marker is detected?*
 
+3551

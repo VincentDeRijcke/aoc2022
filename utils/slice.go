@@ -153,3 +153,11 @@ func Transpose[T any](in [][]T) (out [][]T, err error) {
 
 	return out, nil
 }
+func Contains[T comparable](slice []T, want T) bool {
+	for _, got := range slice {
+		if got == want {
+			return true
+		}
+	}
+	return false
+}

@@ -14,6 +14,12 @@ func Test_resolve(t *testing.T) {
 		want1 int
 		want2 int
 	}{
+		{name: "EdgeCase", args: args{input: ""}, want1: -1, want2: -1},
+		{name: "EdgeCase", args: args{input: "111"}, want1: -1, want2: -1},
+		{name: "EdgeCase", args: args{input: "1234"}, want1: 4, want2: -1},
+		{name: "EdgeCase", args: args{input: "12345"}, want1: 4, want2: -1},
+		{name: "EdgeCase", args: args{input: "1234567890abc"}, want1: 4, want2: -1},
+		{name: "EdgeCase", args: args{input: "1234567890abcd"}, want1: 4, want2: 14},
 		{name: "Example", args: args{input: "mjqjpqmgbljsphdztnvjfqwrcgsmlb"}, want1: 7, want2: 19},
 		{name: "Example", args: args{input: "bvwbjplbgvbhsrlpgdmjqwftvncz"}, want1: 5, want2: 23},
 		{name: "Example", args: args{input: "nppdvjthqldpwncqszvftbrmjlhg"}, want1: 6, want2: 23},
