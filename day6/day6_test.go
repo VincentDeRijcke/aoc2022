@@ -20,6 +20,9 @@ func Test_resolve(t *testing.T) {
 		{name: "EdgeCase", args: args{input: "12345"}, want1: 4, want2: -1},
 		{name: "EdgeCase", args: args{input: "1234567890abc"}, want1: 4, want2: -1},
 		{name: "EdgeCase", args: args{input: "1234567890abcd"}, want1: 4, want2: 14},
+		{name: "NewAlgo", args: args{input: "abcd"}, want1: 4, want2: -1},
+		{name: "NewAlgo", args: args{input: "abcbef"}, want1: 6, want2: -1},
+		{name: "NewAlgo", args: args{input: "acccdef"}, want1: 7, want2: -1},
 		{name: "Example", args: args{input: "mjqjpqmgbljsphdztnvjfqwrcgsmlb"}, want1: 7, want2: 19},
 		{name: "Example", args: args{input: "bvwbjplbgvbhsrlpgdmjqwftvncz"}, want1: 5, want2: 23},
 		{name: "Example", args: args{input: "nppdvjthqldpwncqszvftbrmjlhg"}, want1: 6, want2: 23},
@@ -34,26 +37,6 @@ func Test_resolve(t *testing.T) {
 			}
 			if got2 != tt.want2 {
 				t.Errorf("resolve() got2 = %v, want2 %v", got2, tt.want2)
-			}
-		})
-	}
-}
-
-func Test_isMarker(t *testing.T) {
-	type args struct {
-		s []rune
-	}
-	tests := []struct {
-		name string
-		args args
-		want bool
-	}{
-		{name: "Example", args: args{s: []rune("nppd")}, want: false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := isMarker(tt.args.s); got != tt.want {
-				t.Errorf("isMarker() = %v, want %v", got, tt.want)
 			}
 		})
 	}

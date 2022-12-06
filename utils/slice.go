@@ -161,3 +161,10 @@ func Contains[T comparable](slice []T, want T) bool {
 	}
 	return false
 }
+
+func LastIndex[T comparable](slice []T, want T) int {
+	i := len(slice) - 1
+	for ; i >= 0 && slice[i] != want; i-- {
+	}
+	return i
+}

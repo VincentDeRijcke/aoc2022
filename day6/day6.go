@@ -6,23 +6,42 @@ import (
 	"os"
 )
 
-func isMarker(s []rune) bool {
-	for i := 1; i < len(s); i++ {
-		if utils.Contains(s[0:i], s[i]) {
-			return false
-		}
+//func isMarker(s []rune) bool {
+//	for i := 1; i < len(s); i++ {
+//		if utils.Contains(s[0:i], s[i]) {
+//			return false
+//		}
+//	}
+//
+//	return true
+//}
+//
+//func indexMarker(runes []rune, size int, start int) (from, to int) {
+//	for i := start; i < len(runes)-size+1; i++ {
+//		if isMarker(runes[i : i+size]) {
+//			return i, i + size
+//		}
+//	}
+//	return -1, -1
+//}
+
+func indexMarker(runes []rune, size int, start int) (from, to int) {
+	if len(runes)-start < size {
+		return -1, -1
 	}
 
-	return true
-}
+	from = start
+	to = start + 1
+	for i := to; i < len(runes) && to-from < size; {
+		found := utils.LastIndex(runes[from:to], runes[i])
 
-func indexMarker(runes []rune, size int, start int) int {
-	for i := start; i < len(runes)-size+1; i++ {
-		if isMarker(runes[i : i+size]) {
-			return i + size
+		if found >= 0 {
+			from += found + 1
 		}
+		i++
+		to = i
 	}
-	return -1
+	return from, to
 }
 
 func resolve(input string) (resultPart1 int, resultPart2 int) {
@@ -31,8 +50,8 @@ func resolve(input string) (resultPart1 int, resultPart2 int) {
 
 	signal := []rune(input)
 
-	if resultPart1 = indexMarker(signal, 4, 0); resultPart1 >= 0 {
-		resultPart2 = indexMarker(signal, 14, resultPart1-4)
+	if _, resultPart1 = indexMarker(signal, 4, 0); resultPart1 >= 0 {
+		_, resultPart2 = indexMarker(signal, 14, resultPart1-4)
 	}
 
 	return
