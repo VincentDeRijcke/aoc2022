@@ -79,8 +79,8 @@ func TestTransposeString(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := TransposeString(tt.args.s); got != tt.want {
-				t.Errorf("TransposeString() = '%v', want '%v'", got, tt.want)
+			if got := RotateString(tt.args.s); got != tt.want {
+				t.Errorf("RotateString() = '%v', want '%v'", got, tt.want)
 			}
 		})
 	}

@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"errors"
 	"strings"
 )
 
@@ -119,40 +118,6 @@ func ReverseInPlace[T any](in []T) []T {
 	return in
 }
 
-// Transpose lines to columns
-// Each line should have same size
-// From
-//
-//	N,C,X
-//	Z,M,P
-//	1,2,3
-//
-// To
-//
-//	1,Z,N
-//	2,M,C
-//	3,P,X
-func Transpose[T any](in [][]T) (out [][]T, err error) {
-	if in == nil {
-		return nil, nil
-	}
-	if len(in) == 0 {
-		return in, nil
-	}
-
-	out = make([][]T, len(in[0]))
-	in = Reverse(in)
-	for _, line := range in {
-		if len(out) != len(line) {
-			return nil, errors.New("not all line have same size")
-		}
-		for i, v := range line {
-			out[i] = append(out[i], v)
-		}
-	}
-
-	return out, nil
-}
 func Contains[T comparable](slice []T, want T) bool {
 	for _, got := range slice {
 		if got == want {

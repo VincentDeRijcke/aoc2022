@@ -8,142 +8,64 @@ import (
 	"time"
 )
 
-func newForestMaps(survey []string) ([][]rune, [][]bool, [][]int) {
-	forest := make([][]rune, len(survey))
-	visibility := make([][]bool, len(survey))
-	score := make([][]int, len(survey))
-	for i, r := range survey {
-		forest[i] = make([]rune, len(r))
-		visibility[i] = make([]bool, len(r))
-		score[i] = make([]int, len(r))
-		for j, c := range r {
-			forest[i][j] = c
-		}
-	}
+func scan(survey []string) (visibleCount int, maxScore int) {
+	rows := utils.Runes(survey)
+	columns := utils.Transpose(rows)
 
-	return forest, visibility, score
-}
+	for i, _ := range rows {
+		for j, _ := range rows[i] {
+			height := rows[i][j]
 
-func scanRow(forest [][]rune, i int, visibility [][]bool, scores [][]int) {
-	columns := len(forest[0])
+			up := utils.Reverse(columns[j][:i])
+			down := columns[j][i+1:]
 
-	var max rune
-	for j := 0; j < columns; j++ {
-		height := forest[i][j]
-		if j == 0 || height > max {
-			max = height
-			visibility[i][j] = true
-		}
+			left := utils.Reverse(rows[i][:j])
+			right := rows[i][j+1:]
 
-		score := 0
-		for k := j - 1; k >= 0; k-- {
-			score++
-			if forest[i][k] >= height {
-				break
-			}
-		}
-		scores[i][j] = score
-	}
-	for j := columns - 1; j >= 0; j-- {
-		height := forest[i][j]
-		if j == columns-1 || height > max {
-			max = height
-			visibility[i][j] = true
-		}
-		score := 0
-		for k := j + 1; k < columns; k++ {
-			score++
-			if forest[i][k] >= height {
-				break
-			}
-		}
-		scores[i][j] *= score
-	}
-}
-
-func scanColumn(forest [][]rune, j int, visibility [][]bool, scores [][]int) {
-	rows := len(forest)
-
-	var max rune
-	for i := 0; i < rows; i++ {
-		height := forest[i][j]
-
-		if i == 0 || height > max {
-			max = height
-			visibility[i][j] = true
-		}
-		score := 0
-		for k := i - 1; k >= 0; k-- {
-			score++
-			if forest[k][j] >= height {
-				break
-			}
-		}
-		scores[i][j] *= score
-	}
-	for i := rows - 1; i >= 0; i-- {
-		height := forest[i][j]
-		if i == rows-1 || height > max {
-			max = height
-			visibility[i][j] = true
-		}
-		score := 0
-		for k := i + 1; k < rows; k++ {
-			score++
-			if forest[k][j] >= height {
-				break
-			}
-		}
-		scores[i][j] *= score
-	}
-}
-
-func scan(forest [][]rune, visibility [][]bool, scores [][]int) (int, int) {
-	rows := len(forest)
-	columns := len(forest[0])
-
-	// Scan Rows
-	for i := 0; i < rows; i++ {
-		scanRow(forest, i, visibility, scores)
-	}
-
-	// Scan Columns
-	for j := 0; j < columns; j++ {
-		scanColumn(forest, j, visibility, scores)
-	}
-
-	visibleCount := 0
-	for _, row := range visibility {
-		for _, visible := range row {
-			if visible {
+			if visible(height, up) || visible(height, down) || visible(height, left) || visible(height, right) {
 				visibleCount++
 			}
-		}
-	}
 
-	maxScore := 0
-	for _, row := range scores {
-		for _, score := range row {
-			if score > maxScore {
-				maxScore = score
+			totalScore := score(height, up) * score(height, down) * score(height, left) * score(height, right)
+			if totalScore > maxScore {
+				maxScore = totalScore
 			}
 		}
 	}
 
-	//fmt.Println(forest)
-	//fmt.Println(visibility)
-	//fmt.Println(scores)
+	return
+}
 
-	return visibleCount, maxScore
+func visible(height rune, line []rune) bool {
+	for _, other := range line {
+		if other >= height {
+			return false
+		}
+	}
+
+	return true
+}
+
+func score(height rune, line []rune) int {
+	result := 0
+	for _, other := range line {
+		result++
+		if other >= height {
+			break
+		}
+	}
+
+	return result
 }
 
 func resolve(input string) (resultPart1 int, resultPart2 int) {
 	survey := utils.SliceFilter(utils.SliceMap(strings.Split(input, "\n"), strings.TrimSpace), utils.IsNotEmpty)
-	forest, visibility, score := newForestMaps(survey)
-	resultPart1, resultPart2 = scan(forest, visibility, score)
+
+	resultPart1, resultPart2 = scan(survey)
 
 	return
 }
+
 func main() {
 	var content, err = os.ReadFile("./day8/input.txt")
 	utils.MaybePanic(err)
