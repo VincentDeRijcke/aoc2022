@@ -42,3 +42,7 @@ func TransposeString(s string) string {
 	MaybePanic(err)
 	return RunesToString(out)
 }
+
+func IsNotEmpty(s string) bool {
+	return len(s) > 0
+}
