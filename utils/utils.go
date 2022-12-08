@@ -37,6 +37,21 @@ func RunesTrimSpace(runes []rune) []rune {
 	return []rune(strings.TrimSpace(string(runes)))
 }
 
+// RotateString rotates from
+//
+//	...x...
+//	..xxx..
+//	.xxxxx.
+//
+// To
+//
+//	...
+//	x..
+//	xx.
+//	xxx
+//	xx.
+//	x..
+//	...
 func RotateString(s string) string {
 	return RunesToString(Transpose(Reverse(StringToRunes(s))))
 }

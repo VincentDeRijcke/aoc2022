@@ -16,7 +16,7 @@ func IsGrid[T any](maybeGrid [][]T) bool {
 	return true
 }
 
-func LenGrid[T any](grid [][]T) (int, int) {
+func GridSizes[T any](grid [][]T) (int, int) {
 	if !IsGrid(grid) {
 		panic(errors.New("not a grid"))
 	}
@@ -26,7 +26,7 @@ func LenGrid[T any](grid [][]T) (int, int) {
 	return len(grid), len(grid[0])
 }
 
-func MapGrid[I any, O any](grid [][]I, f func(I) O) [][]O {
+func GridMap[I any, O any](grid [][]I, f func(I) O) [][]O {
 	if !IsGrid(grid) {
 		panic(errors.New("not a grid"))
 	}
@@ -43,7 +43,7 @@ func Transpose[I any](grid [][]I) [][]I {
 	if grid == nil {
 		return nil
 	}
-	rows, cols := LenGrid(grid)
+	rows, cols := GridSizes(grid)
 
 	result := make([][]I, cols)
 	for j := 0; j < cols; j++ {
