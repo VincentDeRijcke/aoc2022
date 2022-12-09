@@ -39,11 +39,11 @@ func follow(h pos, t pos) pos {
 	newt := pos{t.i, t.j}
 	di, dj := h.i-t.i, h.j-t.j
 	if di == 2 || di == -2 || dj == 2 || dj == -2 {
-		// ..T..  .H.
-		// H.T.H  ...
-		// ..T..  TTT
-		//        ...
-		//        .H.
+		// ..T.. > DR / DL 		.H.
+		// H.T.H > R  / L 		...
+		// ..T.. > UR /	UL		TTT
+		//        			    ...
+		//        			    .H.
 
 		if di > 0 {
 			newt = step(newt, "R")
@@ -60,33 +60,28 @@ func follow(h pos, t pos) pos {
 	return newt
 }
 
-func move(h pos, t []pos, direction string) (pos, []pos) {
-	newh := step(h, direction)
-
-	newt := make([]pos, len(t))
-	for k, _ := range t {
-		newt[k] = pos{t[k].i, t[k].j}
+func move(c []pos, direction string) []pos {
+	newc := make([]pos, len(c))
+	for k, _ := range c {
+		newc[k] = pos{c[k].i, c[k].j}
 		if k == 0 {
-			newt[k] = follow(newh, newt[k])
+			newc[k] = step(newc[k], direction)
 		} else {
-			newt[k] = follow(newt[k-1], newt[k])
+			newc[k] = follow(newc[k-1], newc[k])
 		}
 	}
 
-	//printTailLog(tailLog, newh, newt)
-
-	return newh, newt
+	return newc
 }
 
 func execMoves(lines []string, cordLength int) int {
-	h := pos{0, 0}
-	t := utils.SliceMap(make([]pos, cordLength-1), func(_ pos) pos { return pos{0, 0} })
+	cord := utils.SliceMap(make([]pos, cordLength), func(_ pos) pos { return pos{0, 0} })
 
 	tailLog = make(map[string]pos, 10000)
-	record(t[len(t)-1])
+	record(cord[len(cord)-1])
 
 	//fmt.Println("Start:")
-	//printTailLog(tailLog, h, t)
+	//printTailLog(tailLog, cord)
 
 	for _, line := range lines {
 		instructions := strings.Fields(line)
@@ -95,13 +90,15 @@ func execMoves(lines []string, cordLength int) int {
 
 		//fmt.Println(line)
 		for i := 0; i < steps; i++ {
-			h, t = move(h, t, instructions[0])
-			record(t[len(t)-1])
+			cord = move(cord, instructions[0])
+			record(cord[len(cord)-1])
+
+			//printTailLog(tailLog, cord)
 		}
 	}
 
 	fmt.Println("Final:")
-	printTailLog(tailLog, h, t)
+	printTailLog(tailLog, cord)
 
 	return len(tailLog)
 }
@@ -118,9 +115,8 @@ func resolve(input string) (resultPart1 int, resultPart2 int) {
 	return resultPart1, resultPart2
 }
 
-func printTailLog(log map[string]pos, head pos, tail []pos) {
-	mini, minj := utils.Min(0, head.i), utils.Min(0, head.j)
-	maxi, maxj := head.i, head.j
+func printTailLog(log map[string]pos, tail []pos) {
+	var mini, minj, maxi, maxj int
 	for _, v := range log {
 		maxi = utils.Max(maxi, v.i)
 		maxj = utils.Max(maxj, v.j)
@@ -139,13 +135,15 @@ func printTailLog(log map[string]pos, head pos, tail []pos) {
 		grid[v.j-minj][v.i-mini] = '#'
 	}
 	for k := len(tail) - 1; k >= 0; k-- {
-		r := rune('1' + k)
+		r := rune('0' + k)
 		if k == len(tail)-1 {
 			r = 'T'
 		}
+		if k == 0 {
+			r = 'H'
+		}
 		grid[tail[k].j-minj][tail[k].i-mini] = r
 	}
-	grid[head.j-minj][head.i-mini] = 'H'
 	grid = utils.Reverse(grid)
 	fmt.Println(utils.RunesToString(grid))
 	fmt.Println()
