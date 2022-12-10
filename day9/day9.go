@@ -144,6 +144,8 @@ func printTailLog(log map[string]pos, tail []pos) {
 		}
 		grid[tail[k].j-minj][tail[k].i-mini] = r
 	}
+	grid[0-minj][0-mini] = 's'
+
 	grid = utils.Reverse(grid)
 	fmt.Println(utils.RunesToString(grid))
 	fmt.Println()
