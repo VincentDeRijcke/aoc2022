@@ -16,7 +16,7 @@ func execute(instructions []string, cycles []int) (int, string) {
 	maxc := 240
 	X, i := 1, 0
 	signal := make([]int, maxc+1)
-	screen, col, line := utils.GridRunes('.', 40, 6), 0, 0
+	screen, col, line := utils.GridRunes(' ', 40, 6), 0, 0
 	processing := ""
 
 	for c := 1; c <= maxc; c++ {
@@ -24,7 +24,7 @@ func execute(instructions []string, cycles []int) (int, string) {
 		signal[c] = X * c
 		//drawing
 		if col == X-1 || col == X || col == X+1 {
-			screen[line][col] = '#'
+			screen[line][col] = '\u2588'
 		}
 		if col == 39 {
 			col = 0
