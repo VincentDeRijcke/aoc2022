@@ -22,7 +22,7 @@ import (
 //		......
 //		......
 //		mr....mc,mr
-//		(c ↓)
+//		(r ↓)
 type Grid[I any] struct {
 	grid   [][]I
 	r, c   int
