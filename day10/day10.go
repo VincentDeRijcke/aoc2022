@@ -24,7 +24,7 @@ func execute(instructions []string, cycles []int) (int, string) {
 		signal[c] = X * c
 		//drawing
 		if col == X-1 || col == X || col == X+1 {
-			screen[line][col] = '\u2588'
+			screen[line][col] = '█'
 		}
 		if col == 39 {
 			col = 0

@@ -1,5 +1,11 @@
 package utils
 
+const (
+	RUNE_BLOCK      = '█'
+	RUNE_LIGHTBLOCK = '▒'
+	RUNE_DARKBLOCK  = '▓'
+)
+
 // IsNotDigit returns false if ascii digit
 func IsNotDigit(r rune) bool {
 	return !IsDigit(r)
