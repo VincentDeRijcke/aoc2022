@@ -13,8 +13,10 @@ func MaybePanic(e error) {
 }
 
 // Atois converts a slice of string into a slice of int
-func Atois(slice []string) ([]int, error) {
-	return SliceMapErr(slice, strconv.Atoi)
+func Atois(slice []string) (ints []int) {
+	ints, err := SliceMapErr(slice, strconv.Atoi)
+	MaybePanic(err)
+	return
 }
 
 func Runes(strings []string) [][]rune {

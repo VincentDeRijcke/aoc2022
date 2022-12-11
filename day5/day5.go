@@ -40,8 +40,7 @@ func buildStacks(lines [][]rune) [][]rune {
 }
 
 func move(line string) {
-	fields, err := utils.Atois(strings.FieldsFunc(line, utils.IsNotDigit))
-	utils.MaybePanic(err)
+	fields := utils.Atois(strings.FieldsFunc(line, utils.IsNotDigit))
 	count, from, to := fields[0], fields[1]-1, fields[2]-1
 
 	for i := 0; i < count; i++ {

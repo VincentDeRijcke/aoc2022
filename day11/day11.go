@@ -40,8 +40,6 @@ func (m *monkey) test(level int) int {
 }
 
 func parse(lines []string) []*monkey {
-	var err error
-
 	var current *monkey
 	monkeys := make([]*monkey, 0, 8)
 	for i := 0; i < len(lines); i++ {
@@ -50,8 +48,7 @@ func parse(lines []string) []*monkey {
 			current = new(monkey)
 			monkeys = append(monkeys, current)
 		} else if strings.HasPrefix(line, "  Starting items: ") {
-			current.items, err = utils.Atois(strings.Split(strings.TrimPrefix(line, "  Starting items: "), ", "))
-			utils.MaybePanic(err)
+			current.items = utils.Atois(strings.Split(strings.TrimPrefix(line, "  Starting items: "), ", "))
 		} else if strings.HasPrefix(line, "  Operation: ") {
 			fields := strings.Fields(strings.TrimPrefix(line, "  Operation: new = old "))
 			right, old := strconv.Atoi(fields[1])

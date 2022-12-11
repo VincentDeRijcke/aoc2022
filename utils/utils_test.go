@@ -10,23 +10,17 @@ func Test_atois(t *testing.T) {
 		slice []string
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    []int
-		wantErr bool
+		name string
+		args args
+		want []int
 	}{
-		{name: "Nil", args: args{slice: nil}, want: nil, wantErr: false},
-		{name: "Empty", args: args{slice: []string{}}, want: []int{}, wantErr: false},
-		{name: "NoErr", args: args{slice: []string{"1", "-1", "100", "-100"}}, want: []int{1, -1, 100, -100}, wantErr: false},
-		{name: "Err", args: args{slice: []string{"1", "-1", "bou", "-100"}}, want: []int{1, -1, 0, 0}, wantErr: true},
+		{name: "Nil", args: args{slice: nil}, want: nil},
+		{name: "Empty", args: args{slice: []string{}}, want: []int{}},
+		{name: "NoErr", args: args{slice: []string{"1", "-1", "100", "-100"}}, want: []int{1, -1, 100, -100}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Atois(tt.args.slice)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Atois() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+			got := Atois(tt.args.slice)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Atois() got = %v, want %v", got, tt.want)
 			}
