@@ -133,3 +133,8 @@ func LastIndex[T comparable](slice []T, want T) int {
 	}
 	return i
 }
+
+func Pop[T any](slice []T) (T, []T) {
+	last := len(slice) - 1
+	return slice[last], slice[:last]
+}

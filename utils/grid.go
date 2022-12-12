@@ -16,7 +16,7 @@ func IsGrid[T any](maybeGrid [][]T) bool {
 	return true
 }
 
-func GridSizes[T any](grid [][]T) (int, int) {
+func GridSizes[T any](grid [][]T) (rows int, cols int) {
 	if !IsGrid(grid) {
 		panic(errors.New("not a grid"))
 	}
