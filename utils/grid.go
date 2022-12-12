@@ -39,6 +39,21 @@ func GridMap[I any, O any](grid [][]I, f func(I) O) [][]O {
 	return result
 }
 
+func GridCopy[I any](grid [][]I) [][]I {
+	rows, cols := GridSizes(grid)
+
+	result := make([][]I, rows)
+
+	for i := 0; i < rows; i++ {
+		result[i] = make([]I, cols)
+		for j := 0; j < cols; j++ {
+			result[i][j] = grid[i][j]
+		}
+	}
+
+	return result
+}
+
 func Transpose[I any](grid [][]I) [][]I {
 	if grid == nil {
 		return nil

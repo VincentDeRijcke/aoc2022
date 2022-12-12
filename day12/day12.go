@@ -46,17 +46,17 @@ func findPath(heightmap [][]rune, start rune) int {
 		rootPaths = append(rootPaths, Path{root})
 	}
 
-	paths := explore(heightmap, visited, rootPaths)
+	path := explore(heightmap, visited, rootPaths)
 
-	if len(paths) > 0 {
-		fmt.Println(SPrintPath(paths[0], heightmap))
-		return len(paths[0]) - 1
+	if path != nil {
+		fmt.Println(sprintPath(path, heightmap))
+		return len(path) - 1
 	}
 
 	return 0
 }
 
-func SPrintPath(path Path, heightmap [][]rune) string {
+func sprintPath(path Path, heightmap [][]rune) string {
 	rows, cols := utils.GridSizes(heightmap)
 	pathmap := utils.GridRunes('.', cols, rows)
 
@@ -66,9 +66,35 @@ func SPrintPath(path Path, heightmap [][]rune) string {
 
 	return utils.RunesToString(pathmap)
 }
+func sprintPaths(paths []Path, heightmap [][]rune, visited [][]rune) string {
+	pathmap := utils.GridCopy(heightmap)
 
-func explore(heightmap [][]rune, visited [][]rune, paths []Path) []Path {
+	for i, row := range visited {
+		for j, v := range row {
+			if v != '.' {
+				pathmap[i][j] = '.'
+			}
+		}
+	}
+
+	for _, path := range paths {
+		for i, pos := range path {
+			pathmap[pos.y][pos.x] = '⊙'
+			if i == len(path)-1 {
+				pathmap[pos.y][pos.x] = '█'
+			}
+		}
+	}
+
+	return utils.RunesToString(pathmap)
+}
+
+func explore(heightmap [][]rune, visited [][]rune, paths []Path) Path {
 	nextPaths := make([]Path, 0, 100)
+
+	fmt.Println("Step:", len(paths[0]), " Candidates:", len(paths))
+	fmt.Println(sprintPaths(paths, heightmap, visited))
+
 	for _, path := range paths {
 		current := path[len(path)-1]
 		x, y, h := current.x, current.y, heightmap[current.y][current.x]
@@ -84,7 +110,7 @@ func explore(heightmap [][]rune, visited [][]rune, paths []Path) []Path {
 				nextPath = append(nextPath, *next)
 				if heightmap[next.y][next.x] == 'E' {
 					visited[next.y][next.x] = 'E'
-					return []Path{nextPath}
+					return nextPath
 				} else {
 					nextPaths = append(nextPaths, nextPath)
 				}
@@ -97,7 +123,7 @@ func explore(heightmap [][]rune, visited [][]rune, paths []Path) []Path {
 		return explore(heightmap, visited, nextPaths)
 	}
 
-	return nextPaths
+	return nil
 }
 
 func step(x int, y int, h rune, heightmap [][]rune) *Pos {

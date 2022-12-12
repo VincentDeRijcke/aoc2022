@@ -23,7 +23,6 @@ func Test_resolve(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			//monkeys = exampleMonkeys
 			got1, got2 := resolve(tt.args.input)
 			if got1 != tt.want1 {
 				t.Errorf("resolve() got1 = %v, want1 %v", got1, tt.want1)
