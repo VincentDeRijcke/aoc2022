@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 )
@@ -17,6 +18,13 @@ func Atois(slice []string) (ints []int) {
 	ints, err := SliceMapErr(slice, strconv.Atoi)
 	MaybePanic(err)
 	return
+}
+
+func Atoi(s string) int {
+	i, err := strconv.Atoi(s)
+	MaybePanic(err)
+
+	return i
 }
 
 func Runes(strings []string) [][]rune {
@@ -74,4 +82,22 @@ func Min(x, y int) int {
 		return x
 	}
 	return y
+}
+
+func IsInt(a any) bool {
+	switch a.(type) {
+	case int:
+		return true
+	default:
+		return false
+	}
+}
+
+func ToInt(a any) int {
+	switch i := a.(type) {
+	case int:
+		return i
+	default:
+		panic(errors.New("not an integer"))
+	}
 }
