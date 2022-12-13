@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"errors"
 	"strconv"
 	"strings"
 )
@@ -90,14 +89,5 @@ func IsInt(a any) bool {
 		return true
 	default:
 		return false
-	}
-}
-
-func ToInt(a any) int {
-	switch i := a.(type) {
-	case int:
-		return i
-	default:
-		panic(errors.New("not an integer"))
 	}
 }

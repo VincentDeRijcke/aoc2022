@@ -39,9 +39,9 @@ func ordered(left List, right List) int {
 			return NOT_ORDERED
 		}
 		if utils.IsInt(left[i]) && utils.IsInt(right[i]) {
-			if utils.ToInt(left[i]) < utils.ToInt(right[i]) {
+			if left[i].(int) < right[i].(int) {
 				return ORDERED
-			} else if utils.ToInt(left[i]) > utils.ToInt(right[i]) {
+			} else if left[i].(int) > right[i].(int) {
 				return NOT_ORDERED
 			}
 			// else continue
