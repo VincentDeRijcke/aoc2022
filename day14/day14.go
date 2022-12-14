@@ -13,8 +13,8 @@ var input string
 
 const (
 	SOURCE = '+'
-	AIR    = '.'
-	ROCK   = '#'
+	AIR    = ' '
+	ROCK   = '█'
 	SAND   = 'o'
 )
 
