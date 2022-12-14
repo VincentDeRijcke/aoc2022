@@ -4,6 +4,8 @@ import (
 	"aoc_go22/utils"
 	_ "embed"
 	"fmt"
+	"image"
+	"image/color"
 	"strings"
 	"time"
 )
@@ -17,6 +19,13 @@ const (
 	ROCK   = '█'
 	SAND   = 'o'
 )
+
+var COLORS = map[rune]color.Color{
+	SOURCE: color.Gray{20},
+	AIR:    color.Black,
+	ROCK:   color.White,
+	SAND:   color.RGBA{194, 178, 128, 0xff},
+}
 
 type Point struct{ x, y int }
 
@@ -156,18 +165,26 @@ func resolve(input string) (resultPart1 int, resultPart2 int) {
 	lines := utils.SliceFilter(utils.SliceMap(strings.Split(input, "\n"), strings.TrimSpace), utils.IsNotEmpty)
 	_ = lines
 
+	var frames = make([]*image.Paletted, 0)
 	cave := parse(lines)
-	fmt.Println("Part1:\n", cave)
 	for ; cave.addSand(); resultPart1++ {
+		frames = append(frames, utils.RunesToBlocks(cave.content, COLORS, 6, 6))
 	}
-	fmt.Println("Add ", resultPart1, ":\n", cave)
+
+	frames = append(frames, utils.RunesToBlocks(cave.content, COLORS, 6, 6))
+	gif := utils.Animate(frames)
+	utils.SaveGif(gif, "day14/part1.gif")
 
 	cave.addFloor()
-	fmt.Println("Part2:\n", cave)
-
+	frames = make([]*image.Paletted, 0)
 	for resultPart2 = resultPart1 + 1; cave.addSand(); resultPart2++ {
+		if resultPart2%100 == 0 {
+			frames = append(frames, utils.RunesToBlocks(cave.content, COLORS, 6, 6))
+		}
 	}
-	fmt.Println("Add ", resultPart2, ":\n", cave)
+	frames = append(frames, utils.RunesToBlocks(cave.content, COLORS, 6, 6))
+	gif = utils.Animate(frames)
+	utils.SaveGif(gif, "day14/part2.gif")
 
 	return
 }
