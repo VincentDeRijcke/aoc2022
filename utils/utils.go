@@ -69,18 +69,31 @@ func IsNotEmpty(s string) bool {
 	return len(s) > 0
 }
 
-func Max(x, y int) int {
-	if x > y {
-		return x
+func Max(x int, ys ...int) int {
+	max := x
+	for _, y := range ys {
+		if y > max {
+			max = y
+		}
 	}
-	return y
+	return max
 }
 
-func Min(x, y int) int {
-	if x < y {
-		return x
+func Min(x int, ys ...int) int {
+	min := x
+	for _, y := range ys {
+		if y < min {
+			min = y
+		}
 	}
-	return y
+	return min
+}
+
+func Diff(x, y int) int {
+	if x > y {
+		return x - y
+	}
+	return y - x
 }
 
 func IsInt(a any) bool {
