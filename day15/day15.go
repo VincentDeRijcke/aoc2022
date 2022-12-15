@@ -37,24 +37,37 @@ func resolve(input string, y int) (resultPart1 int, resultPart2 int) {
 		maxy = utils.Min(utils.Max(sensor.location.y, maxy), 4_000_000)
 	}
 	// Part1
-	covers, uncovers := coverage(sensors, y)
-	for _, existingBeacon := range existingBeacons {
-		covers = subtract(covers, existingBeacon)
-	}
-	for _, cover := range covers {
-		resultPart1 += cover.width()
-	}
+	resultsPart1 := make(chan int)
+	go func(res chan int) {
+		covers, _ := coverage(sensors, y)
+		for _, existingBeacon := range existingBeacons {
+			covers = subtract(covers, existingBeacon)
+		}
+		sum := 0
+		for _, cover := range covers {
+			sum += cover.width()
+		}
+
+		res <- sum
+	}(resultsPart1)
+
 	// Part2
-	for y := 0; y <= maxy; y++ {
-		covers, uncovers = coverage(sensors, y)
-		x := gap(uncovers, maxx)
-		if x >= 0 {
-			//fmt.Println("Found", Point{x, y})
-			return resultPart1, 4_000_000*x + y
+	resultsPart2 := make(chan int)
+	find := func(yFrom int, yTo int, res chan int) {
+		for y := yFrom; y <= yTo; y++ {
+			_, uncovers := coverage(sensors, y)
+			x := gap(uncovers, maxx)
+			if x >= 0 {
+				res <- 4_000_000*x + y
+			}
 		}
 	}
+	batch := 5000
+	for y := 0; y <= maxy; y += batch {
+		go find(y, utils.Min(maxy, y+batch), resultsPart2)
+	}
 
-	return
+	return <-resultsPart1, <-resultsPart2
 }
 
 func parse(lines []string) []Sensor {
