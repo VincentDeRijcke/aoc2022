@@ -16,6 +16,10 @@ func IsDigit(r rune) bool {
 	return r >= '0' && r <= '9'
 }
 
+func IsNotInt(r rune) bool {
+	return !IsDigit(r) && r != '-'
+}
+
 func GridRunes(r rune, cols int, rows int) [][]rune {
 	grid := make([][]rune, rows)
 	for i := 0; i < rows; i++ {
