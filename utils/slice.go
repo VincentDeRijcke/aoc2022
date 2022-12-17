@@ -37,6 +37,12 @@ func SliceMap[I, O any](slice []I, f func(I) O) (res []O) {
 
 	return
 }
+func SliceCopy[I any](src []I) (dest []I) {
+	dest = make([]I, len(src), cap(src))
+	copy(dest, src)
+
+	return
+}
 
 // SliceMapErr is a more general version of SliceMap with an error returning mapping function
 func SliceMapErr[I, O any](slice []I, f func(I) (O, error)) (res []O, err error) {
