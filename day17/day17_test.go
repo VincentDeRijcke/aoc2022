@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -17,7 +18,7 @@ func Test_resolve(t *testing.T) {
 		want1 int
 		want2 int
 	}{
-		{name: "Example", args: args{input: example}, want1: 3068, want2: 0},
+		{name: "Example", args: args{input: example}, want1: 3068, want2: 1_514_285_714_288},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -30,4 +31,20 @@ func Test_resolve(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Test_chamber_set(t *testing.T) {
+	chamber := newChamber(10)
+	fmt.Println(chamber)
+	for r := 'a'; r <= 'z'; r++ {
+		chamber.set(int(r%7), int(r-'a'), r)
+		fmt.Println(chamber)
+		fmt.Println()
+	}
+	fmt.Println("Get Stuff")
+	fmt.Println(string(chamber.get(1, 16)))
+	fmt.Println(string(chamber.get(3, 25)))
+	fmt.Println(string(chamber.get(0, 25)))
+	fmt.Println(string(chamber.get(0, 0)))
+	fmt.Println(chamber)
 }
