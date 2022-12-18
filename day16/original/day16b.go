@@ -40,7 +40,7 @@ type Valve struct {
 	Edges string
 }
 
-// //go:embed ../input.txt
+//go:embed input.txt
 var input string
 
 func main() {
