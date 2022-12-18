@@ -1,24 +1,17 @@
 package main
 
 import (
+	"aoc_go22/utils"
 	_ "embed"
 	"fmt"
-	"regexp"
-	"strconv"
 	"strings"
 	"time"
 )
 
-var valveregexp = regexp.MustCompile(`([A-Z]{2}).*=(\d+);.*?((?:[A-Z]{2}(?:, )?)+)`)
-
-type Valve struct {
-	Name  string
-	Rate  uint16
-	Edges string
-}
-
 //go:embed input.txt
 var input string
+
+const START = "AA"
 
 func main() {
 	start := time.Now()
@@ -32,146 +25,120 @@ func main() {
 }
 
 func resolve(input string) (resultPart1 int, resultPart2 int) {
-	valves := parse(input)
+	lines := utils.SliceFilter(utils.SliceMap(strings.Split(input, "\n"), strings.TrimSpace), utils.IsNotEmpty)
 
-	graph := floydWarshall(valves)
+	valves := parse(lines)
+	dist := floydWarshall(valves)
 
-	// pick valves with flow and starting point
-	var worthit []*Valve
-	for _, v := range valves {
-		if v.Rate > 0 || v.Name == "AA" {
-			worthit = append(worthit, v)
+	mvps := make(map[string]*Valve)
+	for _, valve := range valves {
+		if valve.flow > 0 {
+			mvps[valve.label] = valve
 		}
 	}
+	mvps[START] = valves[START]
 
-	// assign bits
-	bitfield := make(map[*Valve]uint16)
-	for idx, v := range worthit {
-		bitfield[v] = 1 << idx
-	}
+	resultPart1 = part1(mvps, dist)
+	resultPart2 = part2(mvps, dist)
 
-	// find start
-	var start uint16
-	for _, v := range worthit {
-		if v.Name == "AA" {
-			start = bitfield[v]
-			break
-		}
-	}
+	return
+}
 
-	// create slice for fast edge lookup
-	bitgraphsl := make([]uint16, 0xffff)
-	for _, v1 := range worthit {
-		for _, v2 := range worthit {
-			bitgraphsl[bitfield[v1]|bitfield[v2]] = graph[v1][v2]
-		}
-	}
-
-	// create slice for fast node lookup
-	worthbitsl := make([][2]uint16, len(worthit))
-	for idx, v := range worthit {
-		worthbitsl[idx] = [2]uint16{bitfield[v], v.Rate}
-	}
-
-	// part 1
-	var dfs func(target, pressure, minute, on, node uint16) uint16
-	dfs = func(target, pressure, minute, on, node uint16) uint16 {
+func part1(mvps map[string]*Valve, dist map[*Valve]map[*Valve]int) int {
+	start := mvps[START]
+	var dfs func(target int, pressure int, minute int, prevs []*Valve, node *Valve) int
+	dfs = func(target int, pressure int, minute int, prevs []*Valve, node *Valve) int {
 		max := pressure
-		for _, w := range worthbitsl {
-			if node == w[0] || w[0] == start || w[0]&on != 0 {
+		for _, mvp := range mvps {
+			if node == mvp || mvp == start || utils.Contains(prevs, mvp) {
 				continue
 			}
-			l := bitgraphsl[node|w[0]] + 1
-			if minute+l > target {
+			d := dist[node][mvp] + 1
+			if minute+d > target {
 				continue
 			}
-			if next := dfs(target, pressure+(target-minute-l)*w[1], minute+l, on|w[0], w[0]); next > max {
+			if next := dfs(target, pressure+(target-minute-d)*mvp.flow, minute+d, append(prevs, mvp), mvp); next > max {
 				max = next
 			}
 		}
 		return max
 	}
 
-	part1 := dfs(30, 0, 0, 0, start)
-
-	// part 2
-	var dfspaths func(target, pressure, minute, on, node, path uint16) [][2]uint16
-	dfspaths = func(target, pressure, minute, on, node, path uint16) [][2]uint16 {
-		paths := [][2]uint16{{pressure, path}}
-		for _, w := range worthbitsl {
-			if w[0] == node || w[0] == start || w[0]&on != 0 {
-				continue
-			}
-			l := bitgraphsl[node|w[0]] + 1
-			if minute+l > target {
-				continue
-			}
-			paths = append(paths, dfspaths(target, pressure+(target-minute-l)*w[1], minute+l, on|w[0], w[0], path|w[0])...)
-		}
-		return paths
-	}
-
-	allpaths := dfspaths(26, 0, 0, 0, start, 0)
-
-	// reduce paths (presumably, both paths are at least half of part 1)
-	var trimpaths [][2]uint16
-	for _, p := range allpaths {
-		if p[0] > part1/2 {
-			trimpaths = append(trimpaths, p)
-		}
-	}
-
-	// compare all paths to find max
-	var max uint16 = 0
-	for idx := 0; idx < len(trimpaths); idx += 1 {
-		for jdx := idx + 1; jdx < len(trimpaths); jdx += 1 {
-			if trimpaths[idx][1]&trimpaths[jdx][1] != 0 {
-				continue
-			}
-			if m := trimpaths[idx][0] + trimpaths[jdx][0]; m > max {
-				max = m
-			}
-		}
-	}
-
-	return int(part1), int(max)
+	return dfs(30, 0, 0, make([]*Valve, 0, len(mvps)), start)
 }
 
-func parse(input string) []*Valve {
-	lines := strings.Split(strings.TrimSpace(input), "\n")
-	valves := make([]*Valve, len(lines))
-	for idx, line := range lines {
-		m := valveregexp.FindStringSubmatch(line)
-		i, _ := strconv.Atoi(m[2])
-		valves[idx] = &Valve{Name: m[1], Rate: uint16(i), Edges: m[3]}
-	}
-	return valves
+func part2(mvps map[string]*Valve, dist map[*Valve]map[*Valve]int) int {
+	return 0
 }
 
-func floydWarshall(valves []*Valve) map[*Valve]map[*Valve]uint16 {
-	graph := make(map[*Valve]map[*Valve]uint16)
-	for _, v1 := range valves {
-		graph[v1] = make(map[*Valve]uint16)
-		for _, v2 := range valves {
+func parse(lines []string) map[string]*Valve {
+	valves := utils.SliceMap(lines, parseValve)
+	valveMap := make(map[string]*Valve)
+
+	for _, valve := range valves {
+		valveMap[valve.label] = valve
+	}
+
+	for i, leads := range utils.SliceMap(lines, parseLeads) {
+		for _, lead := range leads {
+			to := valveMap[lead]
+			valves[i].to = append(valves[i].to, to)
+		}
+	}
+
+	return valveMap
+}
+func parseValve(line string) *Valve {
+	v := new(Valve)
+	fmt.Sscanf(line, "Valve %s has flow rate=%d;", &v.label, &v.flow)
+
+	return v
+}
+func parseLeads(line string) []string {
+	_, line, _ = strings.Cut(line, ";")
+	line = strings.ReplaceAll(line, " tunnel leads to valve ", "")
+	line = strings.ReplaceAll(line, " tunnels lead to valves ", "")
+	line = strings.ReplaceAll(line, ", ", " ")
+
+	return strings.Fields(line)
+}
+
+type Valve struct {
+	label string
+	flow  int
+	to    []*Valve
+}
+
+func (v Valve) String() string {
+	return fmt.Sprintf("%s(%d)", v.label, v.flow)
+}
+
+// floydWarshall calculate the min distance between every 2 pair of nodes in a directed graph.
+// returns map[from][to] = distance
+func floydWarshall(nodes map[string]*Valve) map[*Valve]map[*Valve]int {
+	dist := make(map[*Valve]map[*Valve]int)
+	for _, v1 := range nodes {
+		dist[v1] = make(map[*Valve]int)
+		for _, v2 := range nodes {
 			if v1 == v2 {
-				graph[v1][v2] = 0
-			} else if strings.Contains(v1.Edges, v2.Name) {
-				graph[v1][v2] = 1
+				dist[v1][v2] = 0
+			} else if utils.Contains(v1.to, v2) {
+				dist[v1][v2] = 1 // Distance always 1 in this case, could be positive or negative
 			} else {
-				graph[v1][v2] = 0xff
+				dist[v1][v2] = 0xff // Infinite Distance, large enough, but should not overflow
 			}
 		}
 	}
 
-	for _, k := range valves {
-		for _, i := range valves {
-			for _, j := range valves {
-				if graph[i][j] > graph[i][k]+graph[k][j] {
-					graph[i][j] = graph[i][k] + graph[k][j]
+	for _, k := range nodes {
+		for _, i := range nodes {
+			for _, j := range nodes {
+				if dist[i][j] > dist[i][k]+dist[k][j] {
+					dist[i][j] = dist[i][k] + dist[k][j]
 				}
 			}
 		}
 	}
 
-	return graph
+	return dist
 }
