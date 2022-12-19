@@ -4,19 +4,8 @@ import (
 	"testing"
 )
 
-var example = `2,2,2
-1,2,2
-3,2,2
-2,1,2
-2,3,2
-2,2,1
-2,2,3
-2,2,4
-2,2,6
-1,2,5
-3,2,5
-2,1,5
-2,3,5
+var example = `Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
+Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian.
 `
 
 func Test_resolve(t *testing.T) {
@@ -29,7 +18,7 @@ func Test_resolve(t *testing.T) {
 		want1 int
 		want2 int
 	}{
-		{name: "Example", args: args{input: example}, want1: 64, want2: 58},
+		{name: "Example", args: args{input: example}, want1: 33, want2: 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
