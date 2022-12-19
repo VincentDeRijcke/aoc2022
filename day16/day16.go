@@ -1,5 +1,10 @@
 package main
 
+// VERY heavily inspired by Go: https://github.com/korylprince/adventofcode/blob/master/2022/16/main.go
+// See original folder
+// Same algorithm adapted to parsing and data used in the WIP.
+// Remove the bitmap optimisations for clarity but still runs in 8s.
+
 import (
 	"aoc_go22/utils"
 	_ "embed"
@@ -67,8 +72,58 @@ func part1(mvps map[string]*Valve, dist map[*Valve]map[*Valve]int) int {
 	return dfs(30, 0, 0, make([]*Valve, 0, len(mvps)), start)
 }
 
+type PathValue struct {
+	pressure int
+	visited  []*Valve
+}
+
+func (p *PathValue) overlaps(o *PathValue) bool {
+	for _, v := range o.visited {
+		if utils.Contains(p.visited, v) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func part2(mvps map[string]*Valve, dist map[*Valve]map[*Valve]int) int {
-	return 0
+	start := mvps[START]
+
+	var dfs func(target int, pressure int, minute int, prevs []*Valve, node *Valve, visited []*Valve) []*PathValue
+
+	dfs = func(target int, pressure int, minute int, prevs []*Valve, node *Valve, visited []*Valve) []*PathValue {
+		paths := []*PathValue{{pressure, visited}}
+		for _, mvp := range mvps {
+			if node == mvp || mvp == start || utils.Contains(prevs, mvp) {
+				continue
+			}
+			d := dist[node][mvp] + 1
+			if minute+d > target {
+				continue
+			}
+			paths = append(paths, dfs(target, pressure+(target-minute-d)*mvp.flow, minute+d, append(prevs, mvp), mvp, append(visited, mvp))...)
+		}
+		return paths
+	}
+
+	allpaths := dfs(26, 0, 0, make([]*Valve, 0, len(mvps)), start, make([]*Valve, 0))
+
+	// compare all paths to find max
+	var max = 0
+	for i := 0; i < len(allpaths); i += 1 {
+		for j := i + 1; j < len(allpaths); j += 1 {
+			me := allpaths[i]
+			elephant := allpaths[j]
+			if me.overlaps(elephant) {
+				continue
+			}
+			if m := me.pressure + elephant.pressure; m > max {
+				max = m
+			}
+		}
+	}
+	return max
 }
 
 func parse(lines []string) map[string]*Valve {
