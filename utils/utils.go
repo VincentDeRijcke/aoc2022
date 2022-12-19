@@ -104,12 +104,3 @@ func IsInt(a any) bool {
 		return false
 	}
 }
-
-func CopyMap[V any](src map[string]V) map[string]V {
-	dest := make(map[string]V, len(src))
-	for key, value := range src {
-		dest[key] = value
-	}
-
-	return dest
-}
