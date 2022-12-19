@@ -30,51 +30,7 @@ func resolve(input string) (resultPart1 int, resultPart2 int) {
 	return
 }
 
-type Blueprint struct{ index, oreOre, clayOre, obsOre, obsClay, geodeOre, geodeObs int }
-
-func (bp *Blueprint) buildOre(c *Configuration, r *Resource) (*Configuration, *Resource) {
-	if bp.oreOre <= r.ore && c.ore < bp.maxOre() {
-		return &Configuration{c.ore + 1, c.clay, c.obs, c.geode},
-			&Resource{r.ore - bp.oreOre, r.clay, r.obs, r.geode}
-	}
-
-	return nil, nil
-}
-func (bp *Blueprint) maxOre() int {
-	return utils.Max(bp.oreOre, bp.clayOre, bp.obsOre, bp.geodeOre)
-}
-
-func (bp *Blueprint) buildClay(c *Configuration, r *Resource) (*Configuration, *Resource) {
-	if bp.clayOre <= r.ore && c.clay < bp.maxClay() {
-		return &Configuration{c.ore, c.clay + 1, c.obs, c.geode},
-			&Resource{r.ore - bp.clayOre, r.clay, r.obs, r.geode}
-	}
-
-	return nil, nil
-}
-func (bp *Blueprint) maxClay() int {
-	return bp.obsClay
-}
-func (bp *Blueprint) buildObs(c *Configuration, r *Resource) (*Configuration, *Resource) {
-	if bp.obsOre <= r.ore && bp.obsClay <= r.clay && c.obs < bp.maxObs() {
-		return &Configuration{c.ore, c.clay, c.obs + 1, c.geode},
-			&Resource{r.ore - bp.obsOre, r.clay - bp.obsClay, r.obs, r.geode}
-	}
-
-	return nil, nil
-}
-func (bp *Blueprint) maxObs() int {
-	return bp.geodeObs
-}
-func (bp *Blueprint) buildGeode(c *Configuration, r *Resource) (*Configuration, *Resource) {
-	if bp.geodeOre <= r.ore && bp.geodeObs <= r.obs {
-		return &Configuration{c.ore, c.clay, c.obs, c.geode + 1},
-			&Resource{r.ore - bp.geodeOre, r.clay, r.obs - bp.geodeObs, r.geode}
-	}
-
-	return nil, nil
-}
-
+type Blueprint struct{ index, oreOre, clayOre, obsOre, obsClay, geodeOre, geodeObs, maxOre, maxClay, maxObs int }
 type Configuration struct{ ore, clay, obs, geode int }
 
 func (c Configuration) String() string {
@@ -99,6 +55,10 @@ func parse(line string) *Blueprint {
 		"Each obsidian robot costs %d ore and %d clay. "+
 		"Each geode robot costs %d ore and %d obsidian.", &bp.index, &bp.oreOre, &bp.clayOre, &bp.obsOre, &bp.obsClay, &bp.geodeOre, &bp.geodeObs)
 
+	bp.maxOre = utils.Max(bp.oreOre, bp.clayOre, bp.obsOre, bp.geodeOre)
+	bp.maxClay = bp.obsClay
+	bp.maxObs = bp.geodeObs
+
 	return &bp
 }
 
@@ -115,29 +75,45 @@ func part1(bps []*Blueprint) int {
 	return total
 }
 
+var iterations, trees = 0, 0
+
 func solveBp(bp *Blueprint) int {
-	max := move(1, &Configuration{1, 0, 0, 0}, &Resource{0, 0, 0, 0}, bp)
-	fmt.Println("Result for ", *bp, " is ", max)
+	iterations, trees = 0, 0
+	max := move(24, &Configuration{1, 0, 0, 0}, &Resource{0, 0, 0, 0}, bp)
+	fmt.Println("Result for ", *bp, " is ", max, "t:", trees, "i:", iterations)
 	return max
 }
 func move(time int, conf *Configuration, res *Resource, bp *Blueprint) int {
-	if time == 24 {
+	iterations++
+	if time == 1 {
+		trees++
 		return conf.tick(res).geode
 	}
 	max := 0
-	if c, r := bp.buildOre(conf, res); c != nil {
-		max = utils.Max(max, move(time+1, c, conf.tick(r), bp))
+	if bp.oreOre <= res.ore && conf.ore < bp.maxOre {
+		res := conf.tick(res)
+		res.ore -= bp.oreOre
+		max = utils.Max(move(time-1, &Configuration{conf.ore + 1, conf.clay, conf.obs, conf.geode}, res, bp))
 	}
-	if c, r := bp.buildClay(conf, res); c != nil {
-		max = utils.Max(max, move(time+1, c, conf.tick(r), bp))
+	if bp.clayOre <= res.ore && conf.clay < bp.maxClay {
+		res := conf.tick(res)
+		res.ore -= bp.clayOre
+		max = utils.Max(max, move(time-1, &Configuration{conf.ore, conf.clay + 1, conf.obs, conf.geode}, res, bp))
 	}
-	if c, r := bp.buildObs(conf, res); c != nil {
-		max = utils.Max(max, move(time+1, c, conf.tick(r), bp))
+	if bp.obsOre <= res.ore && bp.obsClay <= res.clay && conf.obs < bp.maxObs {
+		res := conf.tick(res)
+		res.ore -= bp.obsOre
+		res.clay -= bp.obsClay
+		max = utils.Max(max, move(time-1, &Configuration{conf.ore, conf.clay, conf.obs + 1, conf.geode}, res, bp))
 	}
-	if c, r := bp.buildGeode(conf, res); c != nil {
-		max = utils.Max(max, move(time+1, c, conf.tick(r), bp))
+	if bp.geodeOre <= res.ore && bp.geodeObs <= res.obs {
+		res := conf.tick(res)
+		res.ore -= bp.geodeOre
+		res.obs -= bp.geodeObs
+		max = utils.Max(max, move(time-1, &Configuration{conf.ore, conf.clay, conf.obs, conf.geode + 1}, res, bp))
 	}
-	max = utils.Max(max, move(time+1, conf, conf.tick(res), bp))
+
+	max = utils.Max(max, move(time-1, conf, conf.tick(res), bp))
 
 	return max
 }
