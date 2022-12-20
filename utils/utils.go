@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"os"
 	"strconv"
 	"strings"
 )
@@ -103,4 +104,13 @@ func IsInt(a any) bool {
 	default:
 		return false
 	}
+}
+
+func StringToFile(file, content string) {
+	f, err := os.Create(file)
+	MaybePanic(err)
+	defer f.Close()
+
+	_, err = f.WriteString(content)
+	MaybePanic(err)
 }
