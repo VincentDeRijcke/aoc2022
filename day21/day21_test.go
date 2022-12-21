@@ -20,6 +20,30 @@ lgvd: ljgn * ptdq
 drzm: hmdt - zczc
 hmdt: 32
 `
+var example1 = `root: a + b
+humn: 5
+a: ten - humn
+b: 1
+ten: 10
+`
+var example2 = `root: a + b
+humn: 5
+a: humn - ten
+b: 1
+ten: 10
+`
+var example3 = `root: a + b
+humn: 50
+a: humn / ten
+b: 2
+ten: 10
+`
+var example4 = `root: a + b
+humn: 5
+a: ten / humn
+b: 2
+ten: 10
+`
 
 func Test_resolve(t *testing.T) {
 	type args struct {
@@ -28,10 +52,14 @@ func Test_resolve(t *testing.T) {
 	tests := []struct {
 		name  string
 		args  args
-		want1 int
-		want2 int
+		want1 int64
+		want2 int64
 	}{
-		{name: "Example", args: args{input: example}, want1: 152, want2: 0},
+		{name: "Example", args: args{input: example}, want1: 152, want2: 301},
+		{name: "ex1", args: args{input: example1}, want1: 6, want2: 9},
+		{name: "ex2", args: args{input: example2}, want1: -4, want2: 11},
+		{name: "ex3", args: args{input: example3}, want1: 7, want2: 20},
+		{name: "ex4", args: args{input: example4}, want1: 4, want2: 5},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
