@@ -28,8 +28,8 @@ func Test_resolve(t *testing.T) {
 		want1 int
 		want2 int
 	}{
-		{name: "Small", args: args{input: small}, want1: 25, want2: 0},
-		{name: "Example", args: args{input: example}, want1: 110, want2: 0},
+		{name: "Small", args: args{input: small}, want1: 25, want2: 20},
+		{name: "Example", args: args{input: example}, want1: 110, want2: 4},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

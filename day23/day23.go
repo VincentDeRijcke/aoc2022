@@ -26,6 +26,7 @@ func resolve(input string) (resultPart1 int, resultPart2 int) {
 	scan := utils.Runes(lines[:len(lines)-1])
 
 	resultPart1 = part1(scan)
+	resultPart2 = part2(scan)
 
 	return
 }
@@ -48,7 +49,7 @@ type Ground struct {
 }
 
 func (g Ground) String() string {
-	return fmt.Sprintf("(%d, %d) -> (%d, %d)\n", g.n, g.w, g.s, g.e) + g.from.String(g.n, g.s, g.w, g.e) + "\nMoves\n" + g.to.String(g.n, g.s, g.w, g.e)
+	return fmt.Sprintf("(%d, %d) -> (%d, %d)\n", g.n, g.w, g.s, g.e) + g.from.String(g.n, g.s, g.w, g.e) //+ "\nMoves\n" + g.to.String(g.n, g.s, g.w, g.e)
 }
 
 func (p *ElfPos) String(n, s, w, e int) string {
@@ -91,8 +92,9 @@ func part1(scan [][]rune) int {
 
 	for i := 0; i < 10; i++ {
 		round := rounds[i%4]
-		consider(ground, round)
-		move(ground)
+		if consider(ground, round) {
+			move(ground)
+		}
 		//fmt.Println("== End of Round ", i+1, " ==")
 		//fmt.Println(*ground)
 	}
@@ -100,7 +102,30 @@ func part1(scan [][]rune) int {
 	return ((ground.s - ground.n + 1) * (ground.e - ground.w + 1)) - len(ground.elves)
 }
 
-func consider(ground *Ground, directions []int) {
+func part2(scan [][]rune) int {
+	ground := newGround(scan)
+
+	for i := 0; true; i++ {
+		round := rounds[i%4]
+		if consider(ground, round) {
+			move(ground)
+		} else {
+			fmt.Println("== Final of Round ", i+1, " ==")
+			//fmt.Println(*ground)
+			return i + 1
+		}
+		if i%1000 == 0 {
+			fmt.Println("== End of Round ", i+1, " ==")
+			//fmt.Println(*ground)
+		}
+	}
+
+	return 0
+}
+
+func consider(ground *Ground, directions []int) bool {
+	oneNeedsMoving := false
+
 	for _, dir := range directions {
 		for _, elf := range ground.elves {
 			x, y := elf.x, elf.y
@@ -115,6 +140,7 @@ func consider(ground *Ground, directions []int) {
 				ground.from.get(x+1, y-1) != nil ||
 				ground.from.get(x-1, y-1) != nil
 
+			oneNeedsMoving = oneNeedsMoving || needMoving
 			moving := !elf.moving && needMoving
 
 			if moving {
@@ -147,6 +173,8 @@ func consider(ground *Ground, directions []int) {
 			}
 		}
 	}
+
+	return oneNeedsMoving
 }
 func move(ground *Ground) {
 	n, s, w, e := ground.s, ground.n, ground.e, ground.w
@@ -171,7 +199,7 @@ func move(ground *Ground) {
 
 func newGround(scan [][]rune) *Ground {
 	rows, cols := utils.GridSizes(scan)
-	pad := 10
+	pad := 100 // Tried a few times until large enough
 	grid := Ground{0, rows - 1, cols - 1, 0, make([]*Elf, 0, rows*cols), newElfPos(cols, rows, pad), newElfPos(cols, rows, pad)}
 
 	for y, row := range scan {
