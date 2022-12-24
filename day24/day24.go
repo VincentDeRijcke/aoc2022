@@ -25,18 +25,19 @@ func resolve(input string) (resultPart1 int, resultPart2 int) {
 	lines := strings.Split(input, "\n")
 	grid := utils.Runes(lines[:len(lines)-1])
 
-	resultPart1 = part1(grid)
+	valley := parse(grid)
+	resultPart1 = part1(valley, 1, valley.entry, valley.exit)
+	resultPart2 = part2(valley, resultPart1)
 
 	return
 }
 
-func part1(grid [][]rune) int {
-	valley := parse(grid)
+func part1(valley *Valley, min int, start Pos, goal Pos) int {
 
-	pos, end := map[string]Pos{valley.entry.String(): valley.entry}, false
-	for m := 1; !end; m++ {
+	pos, end := map[string]Pos{start.String(): start}, false
+	for m := min; !end; m++ {
 		fmt.Println("Minute", m)
-		pos, end = move(pos, valley, m)
+		pos, end = move(pos, valley, m, goal)
 		if end {
 			return m
 		}
@@ -44,11 +45,17 @@ func part1(grid [][]rune) int {
 
 	return 0
 }
-func move(start map[string]Pos, valley *Valley, m int) (map[string]Pos, bool) {
+
+func part2(valley *Valley, part1End int) int {
+	time := part1(valley, part1End+1, valley.exit, valley.entry)
+	time = part1(valley, time+1, valley.entry, valley.exit)
+	return time
+}
+func move(start map[string]Pos, valley *Valley, m int, goal Pos) (map[string]Pos, bool) {
 	next := make(map[string]Pos)
 	for _, pos := range start {
 		for _, mv := range []Pos{pos, {pos.x, pos.y - 1}, {pos.x, pos.y + 1}, {pos.x - 1, pos.y}, {pos.x + 1, pos.y}} {
-			if mv == valley.exit {
+			if mv == goal {
 				return nil, true
 			} else if valley.isFree(mv, m) {
 				next[mv.String()] = mv

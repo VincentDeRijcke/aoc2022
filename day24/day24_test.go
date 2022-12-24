@@ -22,7 +22,7 @@ func Test_resolve(t *testing.T) {
 		want1 int
 		want2 int
 	}{
-		{name: "Example", args: args{input: example}, want1: 18, want2: 0},
+		{name: "Example", args: args{input: example}, want1: 18, want2: 54},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
