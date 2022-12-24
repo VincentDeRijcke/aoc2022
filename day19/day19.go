@@ -17,6 +17,9 @@ func main() {
 
 	part1, part2 := resolve(input)
 
+	//Expect Part 1: 1681
+	//Expect Part 2: 5394
+
 	fmt.Println("Result Part 1:", part1)
 	fmt.Println("Result Part 2:", part2)
 	fmt.Println("Done - ", time.Now().Sub(start))
