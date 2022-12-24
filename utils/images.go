@@ -7,6 +7,13 @@ import (
 	"os"
 )
 
+var (
+	LightGray = color.Gray{20}
+	Sand      = color.RGBA{194, 178, 128, 0xff}
+	Green     = color.RGBA{0x00, 0xff, 0x00, 0xff}
+	Elf       = color.RGBA{0x16, 0x6e, 0x56, 0xff}
+)
+
 func RunesToBlocks(runes [][]rune, colors map[rune]color.Color, bHeight int, bWidth int) *image.Paletted {
 	rows, cols := GridSizes(runes)
 	width, height := cols*bWidth, rows*bHeight

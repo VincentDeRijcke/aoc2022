@@ -4,6 +4,8 @@ import (
 	"aoc_go22/utils"
 	_ "embed"
 	"fmt"
+	"image"
+	"image/color"
 	"strings"
 	"time"
 )
@@ -67,6 +69,15 @@ func (p *ElfPos) String(n, s, w, e int) string {
 	return strings.Join(ss, "\n")
 }
 
+func (p *ElfPos) Runes() [][]rune {
+	return utils.GridMap(p.pos, func(e *Elf) rune {
+		if e != nil {
+			return ELF
+		}
+		return OPEN
+	})
+}
+
 type Elf struct {
 	x, y            int
 	moving, blocked bool
@@ -104,14 +115,20 @@ func part1(scan [][]rune) int {
 
 func part2(scan [][]rune) int {
 	ground := newGround(scan)
+	colors := map[rune]color.Color{OPEN: color.Black, ELF: utils.Elf}
+	imgs := make([]*image.Paletted, 0, 2000)
+	imgs = append(imgs, utils.RunesToBlocks(ground.from.Runes(), colors, 4, 4))
 
 	for i := 0; true; i++ {
 		round := rounds[i%4]
 		if consider(ground, round) {
 			move(ground)
+			imgs = append(imgs, utils.RunesToBlocks(ground.from.Runes(), colors, 4, 4))
 		} else {
 			fmt.Println("== Final of Round ", i+1, " ==")
 			//fmt.Println(*ground)
+			imgs = append(imgs, utils.RunesToBlocks(ground.from.Runes(), colors, 4, 4))
+			utils.SaveGif(utils.Animate(imgs), "part2.gif")
 			return i + 1
 		}
 		if i%1000 == 0 {
